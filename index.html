@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fade Factory — Barber Shop Trnava</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14161A;
+    --bg-card: #1F2125;
+    --bg-card-hover: #26292E;
+    --white: #F2F3F5;
+    --gray: #9CA0A8;
+    --gray-dim: #5C6068;
+    --accent: #D9D2C5;
+    --line: rgba(242,243,245,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
+  h1, h2, h3, .display { font-family: 'Bebas Neue', sans-serif; font-weight: 400; letter-spacing: 0.01em; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(20, 22, 26, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  nav.scrolled { border-color: var(--line); }
+  .nav-inner { max-width: 1180px; margin: 0 auto; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .logo { display: flex; align-items: baseline; gap: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--gray); font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
+  .nav-links { display: flex; gap: 36px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gray); }
+  .nav-links a { transition: color 0.2s; }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta { background: var(--white); color: var(--bg); padding: 11px 24px; border-radius: 2px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; transition: background 0.25s; white-space: nowrap; flex-shrink: 0; }
+  .nav-cta:hover { background: var(--accent); }
+  .nav-cta.small { padding: 9px 16px; font-size: 12px; }
+  .nav-inner .nav-cta { display: inline-flex; }
+
+  .nav-toggle {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    width: 32px; height: 24px; position: relative; flex-shrink: 0;
+  }
+  .nav-toggle span {
+    position: absolute; left: 0; width: 100%; height: 2px; background: var(--white);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .nav-toggle span:nth-child(1) { top: 2px; }
+  .nav-toggle span:nth-child(2) { top: 11px; }
+  .nav-toggle span:nth-child(3) { top: 20px; }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease;
+  }
+  .mobile-menu.open { max-height: 360px; }
+  .mobile-menu a {
+    padding: 16px 32px;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gray);
+    border-bottom: 1px solid var(--line);
+  }
+  .mobile-menu a:hover { color: var(--white); }
+  .mobile-menu a.nav-cta,
+  .mobile-menu a.nav-cta:hover { color: var(--bg); border-bottom: none; }
+  .mobile-menu .nav-cta { margin: 16px 32px; text-align: center; }
+
+  /* ---------- HERO ---------- */
+  .hero { position: relative; min-height: 92vh; display: flex; align-items: center; padding-top: 88px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
+  .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(20,22,26,0.97) 0%, rgba(20,22,26,0.82) 38%, rgba(20,22,26,0.25) 75%, rgba(20,22,26,0.55) 100%); }
+
+  .hexgrid { position: absolute; top: 40px; right: 40px; z-index: 1; opacity: 0.5; width: 220px; }
+  .hexgrid svg { width: 100%; }
+
+  .hero-content { position: relative; z-index: 2; width: 100%; }
+  .eyebrow { font-size: 12.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; font-weight: 600; font-family: 'Inter', sans-serif; }
+  .hero h1 { font-size: clamp(52px, 8vw, 110px); line-height: 0.95; color: var(--white); max-width: 760px; }
+  .hero-sub { margin-top: 22px; font-size: 17px; color: var(--gray); max-width: 440px; }
+  .hero-actions { margin-top: 34px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .btn-primary { background: var(--white); color: var(--bg); padding: 16px 30px; border-radius: 2px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: background 0.25s, transform 0.25s; }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+  .btn-ghost { border: 1px solid rgba(242,243,245,0.25); color: var(--white); padding: 15px 28px; border-radius: 2px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; transition: border-color 0.25s, background 0.25s; }
+  .btn-ghost:hover { border-color: var(--white); background: rgba(242,243,245,0.06); }
+
+  .hero-rating { margin-top: 40px; display: flex; align-items: center; gap: 14px; }
+  .stars { color: var(--accent); font-size: 16px; letter-spacing: 2px; }
+  .hero-rating-text { font-size: 13.5px; color: var(--gray); }
+  .hero-rating-text b { color: var(--white); }
+
+  /* ---------- TICKER ---------- */
+  .ticker { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; overflow: hidden; white-space: nowrap; }
+  .ticker-track { display: inline-flex; animation: ticker-scroll 30s linear infinite; }
+  .ticker-track span { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--gray-dim); padding: 0 32px; display: flex; align-items: center; gap: 32px; letter-spacing: 0.04em; }
+  .ticker-track span::after { content: '◆'; font-size: 9px; color: var(--accent); }
+  @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  section { padding: 110px 0; }
+  .section-head { max-width: 600px; margin-bottom: 56px; }
+  .section-head .eyebrow { margin-bottom: 14px; }
+  .section-head h2 { font-size: clamp(34px, 4.4vw, 56px); line-height: 1.02; color: var(--white); }
+  .section-head p { color: var(--gray); margin-top: 16px; font-size: 16px; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- SERVICES TABS ---------- */
+  .tabs { display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap; }
+  .tab-btn { background: var(--bg-card); border: 1px solid var(--line); color: var(--gray); padding: 12px 22px; border-radius: 2px; font-size: 13px; letter-spacing: 0.03em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-weight: 500; }
+  .tab-btn.active { background: var(--white); color: var(--bg); border-color: var(--white); }
+  .tab-btn:not(.active):hover { color: var(--white); border-color: rgba(242,243,245,0.25); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .price-group { margin-bottom: 36px; }
+  .price-group-title { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-dim); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 40px; }
+  .price-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .price-item-left h4 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15.5px; color: var(--white); margin-bottom: 3px; }
+  .price-item-left p { font-size: 13px; color: var(--gray); }
+  .price-item-right { text-align: right; white-space: nowrap; }
+  .price-item-time { font-size: 12px; color: var(--gray-dim); margin-bottom: 2px; }
+  .price-item-cost { font-size: 16px; color: var(--accent); font-weight: 700; font-family: 'Inter', sans-serif; }
+
+  /* ---------- VIP HIGHLIGHT ---------- */
+  .vip-banner { background: linear-gradient(120deg, var(--bg-card) 0%, #2A2D32 100%); border: 1px solid rgba(217,210,197,0.2); border-radius: 4px; padding: 32px 36px; display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 8px; flex-wrap: wrap; }
+  .vip-banner-left h3 { font-size: 26px; color: var(--accent); margin-bottom: 6px; }
+  .vip-banner-left p { font-size: 14px; color: var(--gray); }
+  .vip-banner-price { font-size: 34px; font-family: 'Bebas Neue', sans-serif; color: var(--white); white-space: nowrap; }
+
+  /* ---------- GALLERY ---------- */
+  .gallery-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: 280px 280px; gap: 14px; }
+  .gallery-grid > a:first-child { grid-row: span 2; }
+  .g-item { border-radius: 4px; overflow: hidden; position: relative; display: block; }
+  .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .g-item:hover img { transform: scale(1.05); }
+  .g-cap { position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 20px; background: linear-gradient(180deg, transparent, rgba(20,22,26,0.85)); font-size: 13px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--white); }
+
+  /* ---------- ABOUT ---------- */
+  .about-section { background: var(--bg-card); }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .about-photo { aspect-ratio: 4/5; border-radius: 4px; overflow: hidden; }
+  .about-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .about-text p { color: var(--gray); font-size: 16px; margin-bottom: 18px; }
+  .about-text p.lead { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--white); line-height: 1.35; letter-spacing: 0.01em; }
+  .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 38px; padding-top: 32px; border-top: 1px solid var(--line); }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--accent); }
+  .stat-label { font-size: 13px; color: var(--gray); margin-top: 2px; }
+
+  /* ---------- REVIEWS ---------- */
+  .reviews-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .review-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 4px; padding: 28px 26px; transition: border-color 0.25s, transform 0.25s; }
+  .review-card:hover { border-color: rgba(217,210,197,0.3); transform: translateY(-4px); }
+  .review-stars { color: var(--accent); font-size: 13px; margin-bottom: 14px; letter-spacing: 1px; }
+  .review-card p { font-size: 14.5px; color: var(--white); margin-bottom: 18px; min-height: 44px; }
+  .review-author { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+  .review-author b { color: var(--white); font-weight: 600; }
+  .review-author span { color: var(--gray-dim); }
+  .review-verified { display: inline-flex; align-items: center; gap: 4px; color: #6FCF97; font-size: 11.5px; margin-top: 4px; }
+
+  .rating-summary { display: flex; align-items: center; gap: 24px; margin-bottom: 44px; padding-bottom: 32px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rating-big { font-family: 'Bebas Neue', sans-serif; font-size: 64px; color: var(--white); line-height: 1; }
+  .rating-summary-stars { color: var(--accent); font-size: 20px; letter-spacing: 3px; margin-bottom: 6px; }
+  .rating-summary-text { font-size: 14px; color: var(--gray); }
+
+  /* ---------- CTA / BOOKING ---------- */
+  .cta-band { background: var(--bg-card); border: 1px solid var(--line); border-radius: 4px; padding: 64px 56px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center; position: relative; overflow: hidden; }
+  .cta-band h2 { font-size: clamp(32px, 4vw, 48px); color: var(--white); line-height: 1.05; }
+  .cta-band p { color: var(--gray); margin-top: 16px; font-size: 16px; max-width: 420px; }
+  .cta-band .btn-primary { margin-top: 28px; }
+  .hours-card { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 28px 30px; }
+  .hours-card h4 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-dim); margin-bottom: 18px; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .hours-row { display: flex; justify-content: space-between; padding: 9px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .hours-row:last-child { border-bottom: none; }
+  .hours-row.today { color: var(--white); font-weight: 600; }
+  .hours-row span:first-child { color: var(--gray); }
+  .hours-row.today span:first-child { color: var(--white); }
+  .hours-row span:last-child { color: var(--white); }
+
+  /* ---------- INFO GRID (location, contact, parking) ---------- */
+  .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .info-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 4px; padding: 30px 28px; }
+  .info-card svg { width: 28px; height: 28px; margin-bottom: 18px; color: var(--accent); }
+  .info-card h4 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; color: var(--white); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .info-card p { font-size: 14.5px; color: var(--gray); margin-bottom: 4px; }
+  .info-card a { color: var(--accent); }
+  .info-card a:hover { text-decoration: underline; }
+
+  .map-embed { aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); margin-top: 22px; }
+  .map-embed iframe { width: 100%; height: 100%; border: 0; filter: grayscale(0.15) invert(0.92) contrast(0.9); }
+
+  .reviews-more-wrap { display: flex; justify-content: center; margin-top: 36px; }
+  .review-card.hidden-review { display: none; }
+  .review-card.hidden-review.show { display: block; }
+
+  /* ---------- FOOTER ---------- */
+  footer { padding: 56px 0 28px; border-top: 1px solid var(--line); }
+  .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-bottom: 30px; }
+  .footer-about { color: var(--gray); font-size: 14px; max-width: 320px; margin-top: 14px; }
+  .footer-contact { display: flex; gap: 28px; flex-wrap: wrap; font-size: 14px; color: var(--gray); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--gray-dim); }
+
+  @media (max-width: 880px) {
+    .nav-links { display: none; }
+    .nav-inner .nav-cta { display: none; }
+    .nav-toggle { display: block; }
+    .nav-inner { padding: 14px 18px; gap: 10px; }
+    .logo { font-size: 19px; gap: 6px; }
+    .logo span { font-size: 9px; letter-spacing: 0.1em; }
+    .mobile-menu { display: flex; }
+    .hexgrid { display: none; }
+    .hero { min-height: 88vh; padding-top: 66px; }
+    .hero h1 { font-size: clamp(40px, 13vw, 60px); }
+    .hero-sub { font-size: 15.5px; }
+    .hero-rating { margin-top: 28px; }
+    .price-grid { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 160px 160px 160px; gap: 10px; }
+    .gallery-grid > a:first-child { grid-row: span 1; grid-column: span 2; }
+    .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    .about-photo { order: -1; aspect-ratio: 16/10; }
+    .about-stats { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .stat-num { font-size: 30px; }
+    .reviews-strip { grid-template-columns: 1fr; gap: 16px; }
+    .rating-summary { gap: 16px; }
+    .rating-big { font-size: 48px; }
+    .cta-band { grid-template-columns: 1fr; padding: 32px 22px; gap: 32px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .vip-banner { flex-direction: column; align-items: flex-start; padding: 26px 24px; }
+    section { padding: 56px 0; }
+    .wrap { padding: 0 20px; }
+    .tabs { gap: 6px; }
+    .tab-btn { padding: 10px 16px; font-size: 12px; }
+    .map-embed { aspect-ratio: 4/3; }
+    .footer-top { flex-direction: column; }
+    .footer-contact { flex-direction: column; gap: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .btn-primary, .btn-ghost { text-align: center; justify-content: center; }
+    .price-item { flex-direction: column; gap: 6px; }
+    .price-item-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo">FADE FACTORY <span>Barber Shop</span></a>
+    <div class="nav-links">
+      <a href="#sluzby">Služby</a>
+      <a href="#galeria">Galéria</a>
+      <a href="#recenzie">Recenzie</a>
+      <a href="#kontakt">Kontakt</a>
+    </div>
+    <a href="https://koalendar.com/e/rezervacia-fadefactory-barbershop-trnava" target="_blank" rel="noopener" class="nav-cta">Rezervácia</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Otvoriť menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#sluzby">Služby</a>
+    <a href="#galeria">Galéria</a>
+    <a href="#recenzie">Recenzie</a>
+    <a href="#kontakt">Kontakt</a>
+    <a href="https://koalendar.com/e/rezervacia-fadefactory-barbershop-trnava" target="_blank" rel="noopener" class="nav-cta">Rezervácia</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg">
+    <img src="images/salon-3.jpg" alt="Interiér Fade Factory Barber Shop">
+  </div>
+  <div class="hexgrid">
+    <svg viewBox="0 0 200 200" fill="none">
+      <g stroke="#F2F3F5" stroke-width="1" opacity="0.5">
+        <polygon points="60,10 100,30 100,70 60,90 20,70 20,30"/>
+        <polygon points="140,10 180,30 180,70 140,90 100,70 100,30"/>
+        <polygon points="60,90 100,110 100,150 60,170 20,150 20,110"/>
+        <polygon points="140,90 180,110 180,150 140,170 100,150 100,110"/>
+      </g>
+    </svg>
+  </div>
+  <div class="hero-content wrap">
+    <div class="eyebrow">Barber Shop · Trnava</div>
+    <h1>FADE<br>FACTORY</h1>
+    <p class="hero-sub">Moderný barbershop v srdci Trnavy. Precízne strihy, úprava brady a starostlivosť o váš vzhľad — na úrovni, ktorú si zaslúžite.</p>
+    <div class="hero-actions">
+      <a href="https://koalendar.com/e/rezervacia-fadefactory-barbershop-trnava" target="_blank" rel="noopener" class="btn-primary">Rezervovať termín →</a>
+      <a href="#sluzby" class="btn-ghost">Pozrieť cenník</a>
+    </div>
+    <div class="hero-rating">
+      <span class="stars">★★★★★</span>
+      <span class="hero-rating-text"><b>5.0</b> · viac ako 100 overených hodnotení</span>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>Pánsky strih</span><span>Úprava brady</span><span>Hair Tattoo</span><span>Detský strih</span><span>VIP Combo</span><span>Vytrhávanie voskom</span>
+    <span>Pánsky strih</span><span>Úprava brady</span><span>Hair Tattoo</span><span>Detský strih</span><span>VIP Combo</span><span>Vytrhávanie voskom</span>
+  </div>
+</div>
+
+<section id="sluzby">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Cenník</div>
+      <h2>Naše služby</h2>
+      <p>Od klasického strihu po kompletný VIP servis — vyber si presne to, čo potrebuješ.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="barber">Barber Shop</button>
+      <button class="tab-btn" data-tab="detske">Detské kaderníctvo</button>
+      <button class="tab-btn" data-tab="panske">Pánske kaderníctvo</button>
+    </div>
+
+    <div class="tab-panel active" id="barber">
+      <div class="price-group">
+        <div class="price-group-title">Pánsky strih</div>
+        <div class="price-grid">
+          <div class="price-item">
+            <div class="price-item-left"><h4>Combo (strih + brada)</h4><p>Kompletný strih s úpravou brady</p></div>
+            <div class="price-item-right"><div class="price-item-time">1h</div><div class="price-item-cost">31–35 €</div></div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-left"><h4>Classic Fade</h4><p>Klasický fade strih</p></div>
+            <div class="price-item-right"><div class="price-item-time">50 min</div><div class="price-item-cost">25 €</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-group">
+        <div class="price-group-title">Úprava fúzov</div>
+        <div class="price-grid">
+          <div class="price-item">
+            <div class="price-item-left"><h4>Úprava brady</h4><p>Klasická úprava brady</p></div>
+            <div class="price-item-right"><div class="price-item-time">10–15 min</div><div class="price-item-cost">7–10 €</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-group">
+        <div class="price-group-title">Špeciálna starostlivosť</div>
+        <div class="price-grid">
+          <div class="price-item">
+            <div class="price-item-left"><h4>Hair Tattoo</h4><p>Moderné vzory a čiarky</p></div>
+            <div class="price-item-right"><div class="price-item-time">1 min</div><div class="price-item-cost">5 €</div></div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-left"><h4>Vytrhávanie voskom</h4><p>Uši / nos</p></div>
+            <div class="price-item-right"><div class="price-item-time">1 min</div><div class="price-item-cost">3 €</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vip-banner">
+        <div class="vip-banner-left">
+          <h3>VIP Combo</h3>
+          <p>Strih + brada + vosk + maska na pleť + masáž hlavy</p>
+        </div>
+        <div class="vip-banner-price">1h · 40 €</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="detske">
+      <div class="price-group">
+        <div class="price-group-title">Chlapčenské strihy</div>
+        <div class="price-grid">
+          <div class="price-item">
+            <div class="price-item-left"><h4>Detský strih</h4><p>Do 6 rokov</p></div>
+            <div class="price-item-right"><div class="price-item-time">30 min</div><div class="price-item-cost">16 €</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panske">
+      <div class="price-group">
+        <div class="price-group-title">Pánsky strih</div>
+        <div class="price-grid">
+          <div class="price-item">
+            <div class="price-item-left"><h4>Pánsky strih</h4><p>Krátke vlasy (strojček + nožnice)</p></div>
+            <div class="price-item-right"><div class="price-item-time">30 min</div><div class="price-item-cost">22 €</div></div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-left"><h4>Pánsky strih</h4><p>Dlhé vlasy (strojček + nožnice)</p></div>
+            <div class="price-item-right"><div class="price-item-time">40 min</div><div class="price-item-cost">26 €</div></div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-left"><h4>Pánsky strih strojček</h4><p>Strih strojčekom</p></div>
+            <div class="price-item-right"><div class="price-item-time">30 min</div><div class="price-item-cost">19 €</div></div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-left"><h4>Pánsky strih strojček + shaver</h4><p>Strih strojčekom + holenie</p></div>
+            <div class="price-item-right"><div class="price-item-time">35 min</div><div class="price-item-cost">21 €</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="galeria">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Náš priestor</div>
+      <h2>Pozri sa, kde sa to robí</h2>
+    </div>
+    <div class="gallery-grid reveal">
+      <a class="g-item" href="#">
+        <img src="images/salon-1.jpg" alt="Hlavné kreslo s hexagonálnym osvetlením">
+        <div class="g-cap">Hlavné pracovisko</div>
+      </a>
+      <a class="g-item" href="#">
+        <img src="images/salon-2.jpg" alt="Čakacia zóna">
+        <div class="g-cap">Čakacia zóna</div>
+      </a>
+      <a class="g-item" href="#">
+        <img src="images/salon-3.jpg" alt="Umývacie kreslo a produkty">
+        <div class="g-cap">Wash bar</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="about-section">
+  <div class="wrap about-grid">
+    <div class="about-photo reveal">
+      <img src="images/salon-1.jpg" alt="Fade Factory interiér">
+    </div>
+    <div class="about-text reveal">
+      <div class="eyebrow">O nás</div>
+      <h2 style="margin-bottom: 22px; font-size: clamp(32px, 3.6vw, 44px);">Remeslo, na ktorom záleží</h2>
+      <p class="lead">Fade Factory je miesto, kam sa muži vracajú nielen pre strih, ale aj pre prístup.</p>
+      <p>Sme barbershop v Trnave postavený na precíznosti a pozornosti k detailom. Každý strih je prispôsobený tvojmu štýlu, nie šablóne.</p>
+      <p>Od klasického fade po kompletný VIP servis s masážou hlavy — používame len kvalitné produkty a moderné techniky.</p>
+      <div class="about-stats">
+        <div><div class="stat-num">5.0★</div><div class="stat-label">priemerné hodnotenie</div></div>
+        <div><div class="stat-num">100+</div><div class="stat-label">overených recenzií</div></div>
+        <div><div class="stat-num">6</div><div class="stat-label">dní v týždni otvorené</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="recenzie">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Recenzie</div>
+      <h2>Čo hovoria klienti</h2>
+    </div>
+
+    <div class="rating-summary reveal">
+      <div class="rating-big">5.0</div>
+      <div>
+        <div class="rating-summary-stars">★★★★★</div>
+        <div class="rating-summary-text">Na základe overených hodnotení klientov</div>
+      </div>
+    </div>
+
+    <div class="reviews-strip" id="reviewsStrip">
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Top! Fade Factory v Trnave je naozaj príjemným prekvapením. Holič vedel presne, čo chcem, výsledok je ešte lepší, ako som čakal. Som ako v luxusnom salóne, ale za normálnu cenu. Odteraz už nikam nechodím!"</p>
+        <div class="review-author"><b>Šimon</b><span>5.8.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Po mojej návšteve musím dať najvyššie hodnotenie. Barber mi výborne poradil so stylingom a ostrihal ma presne tak, ako som si predstavoval. Určite sa vrátim."</p>
+        <div class="review-author"><b>Marcel Pavlík</b><span>8.10.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Vynikajúci prístup, krásny priestor a prostredie urobené tak, aby som sa tam ako zákazník cítil čo najlepšie. Miro je šikovný a vždy som veľmi spokojný."</p>
+        <div class="review-author"><b>Lukáš Bureš</b><span>29.12.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Strih 10/10, komunikácia 10/10, konzultácia 10/10. Nemám čo vytknúť. Majster vo svojom obore."</p>
+        <div class="review-author"><b>Dávid Jurák</b><span>21.7.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Boss medzi barbermi. Pokec ako vždy super, strih je perfektný."</p>
+        <div class="review-author"><b>Boris Odler</b><span>6.2.2026</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p>"Všetko prebehlo super. Skvelý barber. Perfektný prístup. Odporúčam."</p>
+        <div class="review-author"><b>Peter Geryk</b><span>5.3.2026</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Chalan, čo vie čo robí, poradil, odporučil, nemám čo vytknúť. Prídem určite aj nabudúce."</p>
+        <div class="review-author"><b>Henrich Seitz</b><span>3.9.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Najlepšia holičská minca v okrese!"</p>
+        <div class="review-author"><b>Boris Odler</b><span>11.7.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Vždy idem od Mira spokojný, je to šikovný chalan plný dobrej energie a jeho práca hovorí sama za seba. On je topka."</p>
+        <div class="review-author"><b>Daniel Hlavatovič</b><span>26.6.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Priateľský prístup, otvorená komunikácia, kvalitné služby. Nech sú vaše požiadavky akékoľvek, flexibilita je vždy na mieste."</p>
+        <div class="review-author"><b>Martin Kráľ</b><span>16.9.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Najlepší holič v Trnave."</p>
+        <div class="review-author"><b>Darina Bačková</b><span>16.10.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+      <div class="review-card reveal hidden-review">
+        <div class="review-stars">★★★★★</div>
+        <p>"Veľmi milý a profesionálny prístup."</p>
+        <div class="review-author"><b>Beáta Kyseľová</b><span>18.12.2025</span></div>
+        <div class="review-verified">✓ Overené hodnotenie</div>
+      </div>
+    </div>
+
+    <div class="reviews-more-wrap">
+      <button class="btn-ghost" id="showMoreReviews" style="cursor:pointer; background:transparent;">Zobraziť viac recenzií ↓</button>
+    </div>
+  </div>
+</section>
+
+<section id="rezervacia">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <div>
+        <h2>Rezervuj si svoj termín</h2>
+        <p>Vyber si službu, čas, ktorý ti vyhovuje a my sa postaráme o zvyšok.</p>
+        <a href="https://koalendar.com/e/rezervacia-fadefactory-barbershop-trnava" target="_blank" rel="noopener" class="btn-primary">Rezervovať online →</a>
+      </div>
+      <div class="hours-card">
+        <h4>Otváracie hodiny</h4>
+        <div class="hours-row"><span>Pondelok</span><span>08:00–20:00</span></div>
+        <div class="hours-row"><span>Utorok</span><span>08:00–20:00</span></div>
+        <div class="hours-row"><span>Streda</span><span>08:00–20:00</span></div>
+        <div class="hours-row"><span>Štvrtok</span><span>08:00–20:00</span></div>
+        <div class="hours-row"><span>Piatok</span><span>08:00–20:00</span></div>
+        <div class="hours-row today"><span>Sobota</span><span>08:00–12:00</span></div>
+        <div class="hours-row"><span>Nedeľa</span><span>Zatvorené</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kontakt">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Kontakt</div>
+      <h2>Kde nás nájdeš</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card reveal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-6.5-7-11.5a7 7 0 1 1 14 0C19 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+        <h4>Adresa</h4>
+        <p>Štefana Moyzesa 3247/2B</p>
+        <p>Trnava, 917 01</p>
+        <p style="margin-top: 8px; font-size: 12.5px; color: var(--gray-dim);">Miroslav Halás - Fade Factory<br>IČO: 56680899</p>
+      </div>
+      <div class="info-card reveal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <h4>Kontaktuj nás</h4>
+        <p><a href="mailto:halasmirko999@gmail.com">halasmirko999@gmail.com</a></p>
+        <p><a href="tel:+421915666799">+421 915 666 799</a></p>
+      </div>
+      <div class="info-card reveal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h4"/></svg>
+        <h4>Platba a parkovanie</h4>
+        <p>Platba v hotovosti</p>
+        <p>Bezplatné parkovanie pri salóne</p>
+      </div>
+    </div>
+    <div class="map-embed reveal">
+      <iframe src="https://www.google.com/maps?q=Fade+Factory+2025,48.3805441,17.5722351&output=embed" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a href="#" class="logo">FADE FACTORY <span>Barber Shop</span></a>
+        <p class="footer-about">Moderný barbershop v Trnave. Precízne strihy a starostlivosť o váš vzhľad — šesť dní v týždni.</p>
+      </div>
+      <div class="footer-contact">
+        <a href="https://maps.app.goo.gl/in5puTiPFCCv7qSL9" target="_blank" rel="noopener">📍 Štefana Moyzesa 3247/2B, Trnava</a>
+        <span>+421 915 666 799</span>
+        <span>halasmirko999@gmail.com</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Fade Factory Barber Shop. Všetky práva vyhradené.</span>
+      <span>Rezervácie spracúva Koalendar — ochrana osobných údajov podlieha ich podmienkam.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10));
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('in'); observer.unobserve(entry.target); }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(el => observer.observe(el));
+
+  // tabs
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // mobile hamburger menu
+  const navToggle = document.getElementById('navToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+
+  // show more reviews
+  const showMoreBtn = document.getElementById('showMoreReviews');
+  showMoreBtn.addEventListener('click', () => {
+    document.querySelectorAll('.hidden-review').forEach(card => {
+      card.classList.add('show', 'in');
+    });
+    showMoreBtn.style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
